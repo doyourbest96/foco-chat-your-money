@@ -1,12 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Send, Bot, User } from 'lucide-react';
 import { Navbar } from '@/components/ui/navbar';
+import ReactMarkdown from 'react-markdown';
 
 interface Message {
   id: number;
@@ -15,42 +16,120 @@ interface Message {
   timestamp: Date;
 }
 
+const MessageTimestamp = ({ timestamp }: { timestamp: Date }) => {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return null;
+  }
+
+  return (
+    <span className="text-xs opacity-70 mt-2 block">
+      {timestamp.toLocaleTimeString()}
+    </span>
+  );
+};
+
 export default function AIChat() {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 1,
       type: 'bot',
-      content: "Hello! I'm your AI assistant. How can I help you with your money transfers today?",
+      content: `# Welcome!
+
+I'm your AI assistant.
+
+This is a platform where anyone can easily send money to others.
+
+We offer three simple methods for sending money:
+
+1. **Mobile Wallet**
+
+   Send money directly to mobile wallets
+
+2. **Crypto Wallet**
+
+   Transfer money to crypto wallets
+
+3. **MoneyGram**
+
+   Send money to friends and family using MoneyGram
+
+How can I help you today?`,
       timestamp: new Date()
     }
   ]);
   const [input, setInput] = useState('');
 
-  const handleSend = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!input.trim()) return;
+  if (!mounted) {
+    return null;
+  }
 
-    const userMessage: Message = {
-      id: messages.length + 1,
-      type: 'user',
-      content: input,
+// In the handleSend function, update the error handling:
+const handleSend = async (e: React.FormEvent) => {
+  e.preventDefault();
+  if (!input.trim()) return;
+
+  const userMessage: Message = {
+    id: messages.length + 1,
+    type: 'user',
+    content: input,
+    timestamp: new Date()
+  };
+
+  setMessages([...messages, userMessage]);
+  setInput('');
+
+  try {
+    const response = await fetch('/api/chat', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ 
+        messages: [...messages, userMessage].map(msg => ({
+          type: msg.type,
+          content: msg.content
+        }))
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+  
+    const botMessage: Message = {
+      id: messages.length + 2,
+      type: 'bot',
+      content: data.response,
       timestamp: new Date()
     };
+  
+    setMessages((prev) => [...prev, botMessage]);
+  } catch (error) {
+    console.error('Chat API Error:', error);
+    const errorMessage: Message = {
+      id: messages.length + 2,
+      type: 'bot',
+      content: 'I encountered an error. Please try again later.',
+      timestamp: new Date()
+    };
+    setMessages((prev) => [...prev, errorMessage]);
+  }
+};
 
-    setMessages([...messages, userMessage]);
-    setInput('');
-
-    // Simulate AI response
-    setTimeout(() => {
-      const botMessage: Message = {
-        id: messages.length + 2,
-        type: 'bot',
-        content: 'I understand you need help. Let me assist you with that.',
-        timestamp: new Date()
-      };
-      setMessages((prev) => [...prev, botMessage]);
-    }, 1000);
-  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -89,10 +168,8 @@ export default function AIChat() {
                         : 'bg-secondary'
                     }`}
                   >
-                    <p>{message.content}</p>
-                    <span className="text-xs opacity-70 mt-2 block">
-                      {message.timestamp.toLocaleTimeString()}
-                    </span>
+                    <ReactMarkdown>{message.content}</ReactMarkdown>
+                    <MessageTimestamp timestamp={message.timestamp} />
                   </div>
                 </div>
               ))}
