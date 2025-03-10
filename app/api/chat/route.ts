@@ -1,5 +1,7 @@
 import { OpenAI } from 'openai';
 
+import { Message } from '@/types/Message';
+
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 });

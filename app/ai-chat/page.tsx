@@ -9,12 +9,7 @@ import { Send, Bot, User } from 'lucide-react';
 import { Navbar } from '@/components/ui/navbar';
 import ReactMarkdown from 'react-markdown';
 
-interface Message {
-  id: number;
-  type: 'user' | 'bot';
-  content: string;
-  timestamp: Date;
-}
+import { Message } from '@/types/Message';
 
 const MessageTimestamp = ({ timestamp }: { timestamp: Date }) => {
   const [mounted, setMounted] = useState(false);
