@@ -29,6 +29,24 @@ const MessageTimestamp = ({ timestamp }: { timestamp: Date }) => {
   );
 };
 
+const MessageTimestamp = ({ timestamp }: { timestamp: Date }) => {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return null;
+  }
+
+  return (
+    <span className="text-xs opacity-70 mt-2 block">
+      {timestamp.toLocaleTimeString()}
+    </span>
+  );
+};
+
 export default function AIChat() {
   const [mounted, setMounted] = useState(false);
 
@@ -40,6 +58,21 @@ export default function AIChat() {
     {
       id: 1,
       type: 'bot',
+<<<<<<< HEAD
+      content: `# WELCOME!
+
+I'm your AI Assistant, Here to help you send money easily.
+
+We offer three simple methods for sending money:
+
+**1.MOBILE WALLET** – Send money directly to mobile wallet.
+
+**2.BANK TRANSFER / CARD** – Transfer funds usgin Ramp, Transak, or MoonPay.
+
+**3.CASH DEPOSIT AT AGENT** – Send money through MoneyGram or local partners.
+
+Which method would you like to use?`,
+=======
       content: `# Welcome!
 
 I'm your AI assistant.
@@ -61,6 +94,7 @@ We offer three simple methods for sending money:
    Send money to friends and family using MoneyGram
 
 How can I help you today?`,
+>>>>>>> 58fb192f606a36ff7b2daa234dc8e4925631e8be
       timestamp: new Date()
     }
   ]);

@@ -1,3 +1,4 @@
+// filepath: /D:/foco-chat-your-money/app/sign-in/page.tsx
 'use client';
 
 import { useState } from 'react';
@@ -9,6 +10,8 @@ import { Label } from '@/components/ui/label';
 import { Navbar } from '@/components/ui/navbar';
 import { Mail, Lock, Loader2, ArrowRight } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+
+import { axiosInstance } from '@/lib/axios';
 
 export default function SignIn() {
   const router = useRouter();
@@ -51,18 +54,25 @@ export default function SignIn() {
 
     setIsLoading(true);
     try {
-      // TODO: Implement actual authentication logic here
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
-      toast({
-        title: "Success!",
-        description: "You have successfully signed in.",
+      const res = await axiosInstance.post('/api/auth/signin', {
+        email: formData.email,
+        password: formData.password
       });
-      router.push('/dashboard');
-    } catch (error) {
+
+      if (res.status === 200) {
+        // console.log(res.data);
+        localStorage.setItem('foco-token', res.data.token);
+        toast({
+          title: 'Success!',
+          description: 'You have successfully signed in.'
+        });
+        router.push('/dashboard');
+      }
+    } catch (error: any) {
       toast({
-        title: "Error",
-        description: "Failed to sign in. Please try again.",
-        variant: "destructive"
+        title: 'Sign in failed',
+        description: error.response?.data?.error || 'An unexpected error occurred. Please try again.',
+        variant: 'destructive'
       });
     } finally {
       setIsLoading(false);
@@ -80,7 +90,7 @@ export default function SignIn() {
               Sign in to your account to continue
             </p>
           </div>
-          
+
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
@@ -91,7 +101,9 @@ export default function SignIn() {
                   type="email"
                   placeholder="name@example.com"
                   value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, email: e.target.value })
+                  }
                   className={`pl-10 ${errors.email ? 'border-destructive' : ''}`}
                 />
               </div>
@@ -99,7 +111,7 @@ export default function SignIn() {
                 <p className="text-sm text-destructive">{errors.email}</p>
               )}
             </div>
-            
+
             <div className="space-y-2">
               <div className="flex justify-between items-center">
                 <Label htmlFor="password">Password</Label>
@@ -114,7 +126,9 @@ export default function SignIn() {
                   type="password"
                   placeholder="••••••••"
                   value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, password: e.target.value })
+                  }
                   className={`pl-10 ${errors.password ? 'border-destructive' : ''}`}
                 />
               </div>
@@ -179,7 +193,7 @@ export default function SignIn() {
           </div>
 
           <div className="mt-6 text-center text-sm">
-            <span className="text-muted-foreground">Don't have an account? </span>
+            <span className="text-muted-foreground">Do not have an account? </span>
             <Button variant="link" className="p-0" onClick={() => router.push('/sign-up')}>
               Sign up <ArrowRight className="ml-1 h-4 w-4" />
             </Button>
