@@ -14,12 +14,14 @@ export default function SignUp() {
   const router = useRouter();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
     confirmPassword: ''
   });
+  
   const [errors, setErrors] = useState({
     name: '',
     email: '',
@@ -58,31 +60,7 @@ export default function SignUp() {
     }
 
     setErrors(newErrors);
-    return !Object.values(newErrors).some(error => error !== '');
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!validateForm()) return;
-
-    setIsLoading(true);
-    try {
-      // TODO: Implement actual registration logic here
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
-      toast({
-        title: "Account created!",
-        description: "You have successfully created your account.",
-      });
-      router.push('/dashboard');
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to create account. Please try again.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsLoading(false);
-    }
+    return !Object.values(newErrors).some((error) => error !== '');
   };
 
   const passwordStrength = (password: string) => {
@@ -94,10 +72,49 @@ export default function SignUp() {
       { regex: /[^A-Za-z0-9]/, text: 'Contains special character' }
     ];
 
-    return checks.map((check, index) => ({
+    return checks.map((check) => ({
       ...check,
       isValid: check.regex.test(password)
     }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validateForm()) return;
+    
+    setIsLoading(true);
+    try {
+      const res = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
+      });
+      
+      const data = await res.json();
+              if (!res.ok) {
+                toast({
+                  title: "Sign up failed",
+                  description: data.error,
+                  variant: "destructive"
+                });
+              } else {        
+                toast({
+                  title: "Account created!",
+                  description: "Your account has been successfully registered. Please sign in."
+                });
+                router.push('/sign-in');
+              }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -111,7 +128,7 @@ export default function SignUp() {
               Enter your details to get started
             </p>
           </div>
-          
+
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="name">Full Name</Label>
@@ -121,7 +138,9 @@ export default function SignUp() {
                   id="name"
                   placeholder="John Doe"
                   value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
                   className={`pl-10 ${errors.name ? 'border-destructive' : ''}`}
                 />
               </div>
@@ -139,7 +158,9 @@ export default function SignUp() {
                   type="email"
                   placeholder="name@example.com"
                   value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, email: e.target.value })
+                  }
                   className={`pl-10 ${errors.email ? 'border-destructive' : ''}`}
                 />
               </div>
@@ -147,7 +168,7 @@ export default function SignUp() {
                 <p className="text-sm text-destructive">{errors.email}</p>
               )}
             </div>
-            
+
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
               <div className="relative">
@@ -157,7 +178,9 @@ export default function SignUp() {
                   type="password"
                   placeholder="••••••••"
                   value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, password: e.target.value })
+                  }
                   className={`pl-10 ${errors.password ? 'border-destructive' : ''}`}
                 />
               </div>
@@ -192,7 +215,9 @@ export default function SignUp() {
                   type="password"
                   placeholder="••••••••"
                   value={formData.confirmPassword}
-                  onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, confirmPassword: e.target.value })
+                  }
                   className={`pl-10 ${errors.confirmPassword ? 'border-destructive' : ''}`}
                 />
               </div>

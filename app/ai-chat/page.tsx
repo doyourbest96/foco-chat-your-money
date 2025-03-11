@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Send, Bot, User } from 'lucide-react';
 import { Navbar } from '@/components/ui/navbar';
+import ReactMarkdown from 'react-markdown';
 
 interface Message {
   id: number;
@@ -44,7 +45,19 @@ export default function AIChat() {
     {
       id: 1,
       type: 'bot',
-      content: "Hello! I'm your AI assistant. How can I help you with your money transfers today?",
+      content: `# WELCOME!
+
+I'm your AI Assistant, Here to help you send money easily.
+
+We offer three simple methods for sending money:
+
+**1.MOBILE WALLET** – Send money directly to mobile wallet.
+
+**2.BANK TRANSFER / CARD** – Transfer funds usgin Ramp, Transak, or MoonPay.
+
+**3.CASH DEPOSIT AT AGENT** – Send money through MoneyGram or local partners.
+
+Which method would you like to use?`,
       timestamp: new Date()
     }
   ]);
@@ -66,18 +79,21 @@ const handleSend = async (e: React.FormEvent) => {
     timestamp: new Date()
   };
 
-  console.log('Sending user message:', userMessage);
   setMessages([...messages, userMessage]);
   setInput('');
 
   try {
-    console.log('Making API request with message:', input);
     const response = await fetch('/api/chat', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ message: input }),
+      body: JSON.stringify({ 
+        messages: [...messages, userMessage].map(msg => ({
+          type: msg.type,
+          content: msg.content
+        }))
+      }),
     });
 
     if (!response.ok) {
@@ -85,7 +101,6 @@ const handleSend = async (e: React.FormEvent) => {
     }
 
     const data = await response.json();
-    console.log('Received API response:', data);
   
     const botMessage: Message = {
       id: messages.length + 2,
@@ -106,6 +121,7 @@ const handleSend = async (e: React.FormEvent) => {
     setMessages((prev) => [...prev, errorMessage]);
   }
 };
+
 
   return (
     <div className="min-h-screen bg-background">
@@ -144,7 +160,7 @@ const handleSend = async (e: React.FormEvent) => {
                         : 'bg-secondary'
                     }`}
                   >
-                    <p>{message.content}</p>
+                    <ReactMarkdown>{message.content}</ReactMarkdown>
                     <MessageTimestamp timestamp={message.timestamp} />
                   </div>
                 </div>

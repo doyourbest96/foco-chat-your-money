@@ -22,6 +22,7 @@ import {
   Building2,
   Wallet,
 } from "lucide-react";
+import Image from "next/image";
 
 export default function Home() {
   const router = useRouter();
@@ -274,10 +275,12 @@ export default function Home() {
             {testimonials.map((testimonial, index) => (
               <Card key={index} className="p-8 hover:shadow-lg transition-all">
                 <div className="flex items-start gap-4">
-                  <img
+                  <Image
                     src={testimonial.image}
                     alt={testimonial.author}
                     className="w-12 h-12 rounded-full object-cover"
+                    width={400}
+                    height={400} 
                   />
                   <div>
                     <p className="text-lg mb-4">{testimonial.quote}</p>
