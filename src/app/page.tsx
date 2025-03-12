@@ -1,9 +1,10 @@
-"use client";
+'use client';
 
-import { useState } from "react";
+import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useAuth } from '@/contexts/auth-context';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { useRouter } from "next/navigation";
 import { Navbar } from "@/components/ui/navbar";
 import { Footer } from "@/components/ui/footer";
 import {
@@ -22,11 +23,17 @@ import {
   Building2,
   Wallet,
 } from "lucide-react";
-import Image from "next/image";
 
 export default function Home() {
   const router = useRouter();
+  const { isAuthenticated } = useAuth();
   const [isHovered, setIsHovered] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.push('/dashboard');
+    }
+  }, [router, isAuthenticated]);
 
   const features = [
     {
@@ -275,12 +282,10 @@ export default function Home() {
             {testimonials.map((testimonial, index) => (
               <Card key={index} className="p-8 hover:shadow-lg transition-all">
                 <div className="flex items-start gap-4">
-                  <Image
+                  <img
                     src={testimonial.image}
                     alt={testimonial.author}
                     className="w-12 h-12 rounded-full object-cover"
-                    width={400}
-                    height={400} 
                   />
                   <div>
                     <p className="text-lg mb-4">{testimonial.quote}</p>

@@ -1,4 +1,3 @@
-// filepath: /D:/foco-chat-your-money/app/sign-in/page.tsx
 'use client';
 
 import { useState } from 'react';
@@ -10,12 +9,13 @@ import { Label } from '@/components/ui/label';
 import { Navbar } from '@/components/ui/navbar';
 import { Mail, Lock, Loader2, ArrowRight } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-
+import { useAuth } from '@/contexts/auth-context';
 import { axiosInstance } from '@/lib/axios';
 
 export default function SignIn() {
   const router = useRouter();
   const { toast } = useToast();
+  const { setToken } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
@@ -60,13 +60,15 @@ export default function SignIn() {
       });
 
       if (res.status === 200) {
-        // console.log(res.data);
-        localStorage.setItem('foco-token', res.data.token);
+        setToken(res.data.token);
+        
         toast({
           title: 'Success!',
           description: 'You have successfully signed in.'
         });
+
         router.push('/dashboard');
+        router.refresh();
       }
     } catch (error: any) {
       toast({

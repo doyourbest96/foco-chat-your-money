@@ -15,36 +15,57 @@ import {
   Bot,
   LogIn,
   UserPlus,
+  LogOut,
+  User,
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useState } from "react";
+import { useAuth } from "@/contexts/auth-context";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export function Navbar() {
   const pathname = usePathname();
   const { theme, setTheme } = useTheme();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { isAuthenticated, logout } = useAuth();
 
   const isActive = (path: string) => pathname === path;
 
   const navigation = [
-    { name: "Home", href: "/", icon: <Home className="h-4 w-4" /> },
     {
       name: "Dashboard",
       href: "/dashboard",
       icon: <LayoutDashboard className="h-4 w-4" />,
+      requiresAuth: true,
     },
-    { name: "Deposit", href: "/on-ramp", icon: <Upload className="h-4 w-4" /> },
+    { 
+      name: "Deposit", 
+      href: "/on-ramp", 
+      icon: <Upload className="h-4 w-4" />,
+      requiresAuth: true,
+    },
     {
       name: "Withdraw",
       href: "/off-ramp",
       icon: <Download className="h-4 w-4" />,
+      requiresAuth: true,
     },
     {
       name: "AI Assistant",
       href: "/ai-chat",
       icon: <Bot className="h-4 w-4" />,
+      requiresAuth: true,
     },
   ];
+
+  const filteredNavigation = navigation.filter(item => 
+    !item.requiresAuth || (item.requiresAuth && isAuthenticated)
+  );
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b">
@@ -56,7 +77,7 @@ export function Navbar() {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-6">
-            {navigation.map((item) => (
+            {filteredNavigation.map((item) => (
               <Link
                 key={item.name}
                 href={item.href}
@@ -79,18 +100,32 @@ export function Navbar() {
               <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
               <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
             </Button>
-            <Button asChild variant="ghost">
-              <Link href="/sign-in" className="flex items-center space-x-2">
-                <LogIn className="h-4 w-4" />
-                <span>Sign In</span>
-              </Link>
-            </Button>
-            <Button asChild>
-              <Link href="/sign-up" className="flex items-center space-x-2">
-                <UserPlus className="h-4 w-4" />
-                <span>Sign Up</span>
-              </Link>
-            </Button>
+
+            {isAuthenticated ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="flex items-center space-x-2">
+                    <User className="h-4 w-4" />
+                    <span>Account</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={logout} className="cursor-pointer">
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <>
+                <Button asChild variant="ghost">
+                  <Link href="/sign-in" className="flex items-center space-x-2">
+                    <LogIn className="h-4 w-4" />
+                    <span>Get Started</span>
+                  </Link>
+                </Button>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -113,7 +148,7 @@ export function Navbar() {
         {isMenuOpen && (
           <div className="md:hidden py-4">
             <div className="flex flex-col space-y-4">
-              {navigation.map((item) => (
+              {filteredNavigation.map((item) => (
                 <Link
                   key={item.name}
                   href={item.href}
@@ -139,24 +174,22 @@ export function Navbar() {
                   <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
                 </Button>
                 <div className="flex flex-col space-y-2">
-                  <Button asChild variant="ghost">
-                    <Link
-                      href="/sign-in"
-                      className="flex items-center space-x-2"
-                    >
-                      <LogIn className="h-4 w-4" />
-                      <span>Sign In</span>
-                    </Link>
-                  </Button>
-                  <Button asChild>
-                    <Link
-                      href="/sign-up"
-                      className="flex items-center space-x-2"
-                    >
-                      <UserPlus className="h-4 w-4" />
-                      <span>Sign Up</span>
-                    </Link>
-                  </Button>
+                  {isAuthenticated ? (
+                    <Button onClick={logout} variant="ghost">
+                      <LogOut className="h-4 w-4 mr-2" />
+                      Sign Out
+                    </Button>
+                  ) : (
+                    <Button asChild>
+                      <Link
+                        href="/sign-in"
+                        className="flex items-center space-x-2"
+                      >
+                        <LogIn className="h-4 w-4" />
+                        <span>Get Started</span>
+                      </Link>
+                    </Button>
+                  )}
                 </div>
               </div>
             </div>
