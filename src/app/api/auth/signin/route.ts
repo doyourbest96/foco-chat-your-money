@@ -1,13 +1,10 @@
-// filepath: /D:/foco-chat-your-money/app/api/auth/signin/route.ts
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcrypt';
 import mongoose from 'mongoose';
 import User from '@/models/User';
-import jwt from 'jsonwebtoken';
+import { signToken } from '@/lib/auth';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
-
-// Ensure a mongoose connection.
+// Ensure a mongoose connection
 if (!mongoose.connection.readyState) {
   mongoose.connect(process.env.MONGODB_URI || '');
 }
@@ -28,7 +25,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Email not found. Please sign up.' }, { status: 404 });
     }
 
-    // Check if the user document has a password.
+    // Check if the user document has a password
     if (!user.password) {
       return NextResponse.json({ error: 'User does not have a password set. Please sign up.' }, { status: 404 });
     }
@@ -40,11 +37,14 @@ export async function POST(req: Request) {
     }
 
     // Create JWT token
-    const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: '1h' });
+    const token = await signToken({ 
+      sub: user._id.toString(),
+      email: user.email
+    });
 
-    // Set the token as a cookie
     return NextResponse.json({ token, message: 'Sign in successful' }, { status: 200 });
   } catch (error) {
+    console.error('Sign in error:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
