@@ -32,7 +32,9 @@ export function middleware(req: NextRequest) {
   try {
     // Verify the token
     console.log('verifying token');
-    // const decoded = jwt.verify("Bearer " + token, JWT_SECRET);
+    const decoded = jwt.verify("Bearer " + token, JWT_SECRET);
+    console.log('decoded', decoded);
+
     console.log('token verified');
     return NextResponse.next();
   } catch (error) {
