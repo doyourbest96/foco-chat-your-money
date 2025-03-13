@@ -15,7 +15,7 @@ const CheckoutForm = ({ recipientId }: { recipientId: string }) => {
     if (!stripe || !elements) return;
 
     setLoading(true);
-    const res = await fetch("/api/create-payment", {
+    const res = await fetch("/api/stripe/create-payment", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ amount: 1000, recipientId }), // $10

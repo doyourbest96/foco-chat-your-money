@@ -12,7 +12,7 @@ const SendMoney = () => {
     setLoading(true);
     setMessage("");
 
-    const response = await fetch("/api/mtn-setup", {
+    const response = await fetch("/api/mtn/mtn-setup", {
       method: "POST",
     });
     const { access_token } = await response.json();
@@ -23,7 +23,7 @@ const SendMoney = () => {
       return;
     }
 
-    const res = await fetch("/api/send-money", {
+    const res = await fetch("/api/mtn/send-money", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

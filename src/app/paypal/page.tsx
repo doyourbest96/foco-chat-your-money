@@ -12,7 +12,7 @@ const SendMoney = () => {
     setLoading(true);
     setMessage("");
 
-    const response = await fetch("/api/paypal-setup", {
+    const response = await fetch("/api/paypal/paypal-setup", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
