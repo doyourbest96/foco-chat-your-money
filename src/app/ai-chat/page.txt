@@ -1,15 +1,16 @@
 'use client';
+import React from 'react';
 
 import { useEffect, useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { Button } from '../../components/ui/button';
+import { Card } from '../../components/ui/card';
+import { Input } from '../../components/ui/input';
+import { ScrollArea } from '../../components/ui/scroll-area';
 import { Send, Bot, User, History } from 'lucide-react';
-import { Navbar } from '@/components/ui/navbar';
+import { Navbar } from '../../components/ui/navbar';
 import ReactMarkdown from 'react-markdown';
 
-import { Message } from '@/types/Message';
+import { Message } from '../../types/Message';
 
 const MessageTimestamp = ({ timestamp }: { timestamp: Date }) => {
   const [mounted, setMounted] = useState(false);
