@@ -37,10 +37,10 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Passwords do not match' }, { status: 400 });
     }
 
-    // Check if a user with the same email or username already exists
-    const existingUser = await User.findOne({ $or: [{ email }, { name }] });
+    // Check if a user with the same email already exists
+    const existingUser = await User.findOne({ $or: [{ email }] });
     if (existingUser) {
-      return NextResponse.json({ error: 'User with this email or username already exists' }, { status: 409 });
+      return NextResponse.json({ error: 'User with this email already exists' }, { status: 409 });
     }
 
     // Hash the password

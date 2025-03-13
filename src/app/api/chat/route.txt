@@ -7,13 +7,6 @@ interface Message {
   timestamp: Date;
 }
 
-// Add Button interface
-interface PaymentButton {
-  type: 'stripe' | 'mtn' | 'paypal';
-  label: string;
-  url: string;
-}
-
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 });
@@ -22,12 +15,10 @@ export async function POST(req: Request) {
   try {
     const { messages } = await req.json();
     
-    // Detect payment method from last message
-    const lastMessage = messages[messages.length - 1]?.content.toLowerCase() || '';
-    const buttons: PaymentButton[] = [];
-
-    // Update system prompt to handle payment method selection
-    const systemPrompt = `You are a helpful assistant focused on money transfers and financial management using crypto.
+    const completion = await openai.chat.completions.create({
+        model: "gpt-4",
+        messages: [
+            { role: "system", content: `You are a helpful assistant focused on money transfers and financial management using crypto.
               Your main goal is to guide users in sending money using one of three methods:
 Mobile Money (M-Pesa, Venmo, PayPal, Cash App, MTN, Chipper Cash)
 Bank Transfer / Card (Ramp, Transak, MoonPay)
@@ -51,16 +42,7 @@ For Bank Transfer / Card, ensure the user understands how to complete the transf
 Store the all info for transaction in this platform's database.
 For Cash Deposit at Agent, check that both sender and receiver are in a supported location and explain where they can deposit or collect funds.
 Once all necessary details are collected correctly, confirm the transaction and send a friendly welcome message summarizing the payment details.
-Be patient, engaging, and make the process easy for beginners!
-      When user selects a payment method, respond with one of these markers:
-      [STRIPE_BUTTON] for Stripe transfers
-      [MTN_BUTTON] for MTN transfers
-      [PAYPAL_BUTTON] for PayPal transfers`;
-
-    const completion = await openai.chat.completions.create({
-        model: "gpt-4",
-        messages: [
-            { role: "system", content: systemPrompt },
+Be patient, engaging, and make the process easy for beginners!` },
             ...messages.map((msg: Message) => ({
                 role: msg.type === 'user' ? 'user' : 'assistant',
                 content: msg.content
@@ -69,32 +51,8 @@ Be patient, engaging, and make the process easy for beginners!
         temperature: 0.7,
     });
 
-    // Parse response for payment method markers
-    const responseText = completion.choices[0].message.content ?? '';
-    
-    if (responseText.includes('[STRIPE_BUTTON]')) {
-      buttons.push({
-        type: 'stripe',
-        label: 'Proceed with Stripe',
-        url: 'https://stripe.com'
-      });
-    } else if (responseText.includes('[MTN_BUTTON]')) {
-      buttons.push({
-        type: 'mtn',
-        label: 'Proceed with MTN',
-        url: 'https://mtn.com'
-      });
-    } else if (responseText.includes('[PAYPAL_BUTTON]')) {
-      buttons.push({
-        type: 'paypal',
-        label: 'Proceed with PayPal',
-        url: 'https://paypal.com'
-      });
-    }
-
     return new Response(JSON.stringify({
-      response: responseText.replace(/\[(STRIPE|MTN|PAYPAL)_BUTTON\]/g, ''),
-      buttons
+      response: completion.choices[0].message.content
     }), {
       headers: {
         'Content-Type': 'application/json'
