@@ -117,7 +117,7 @@ Be patient, engaging, and make the process easy for beginners!`;
     }
 
     return new Response(JSON.stringify({
-      response: responseText.replace(/\[(STRIPE|MTN|PAYPAL)_BUTTON\]/g, ''),
+      response: responseText.replace(/\[(STRIPE|MTN|PAYPAL|MONEYGRAM)_BUTTON\]/g, ''),
       buttons
     }), {
       headers: {
