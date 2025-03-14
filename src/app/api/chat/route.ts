@@ -28,6 +28,7 @@ export async function POST(req: Request) {
 
     // Update system prompt to handle payment method selection
     const systemPrompt = `You are a helpful assistant focused on money transfers and financial management On Foco.chat.
+    But if user ask you about common question, you have to answer this question. and after answer, you have to to ask the question related main goal politely and kindly.
     Foco is a platform that allows users to send and receive money.
 Your main goal is to assist to send or recieve money between people.
 First  you have to ask user if user want to send money or to recive the money.
