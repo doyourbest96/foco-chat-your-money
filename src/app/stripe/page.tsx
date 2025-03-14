@@ -1,108 +1,113 @@
 "use client"
-import Image from "next/image"
-import Link from "next/link"
 import axios from "axios"
-import { loadStripe } from '@stripe/stripe-js'
-import { useEffect, useState } from "react"
+import type React from "react"
+
+import { loadStripe } from "@stripe/stripe-js"
+import { useState } from "react"
 import { useSearchParams } from "next/navigation"
+import Link from "next/link"
 
-const stripePromise = loadStripe(
-    process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY as string
-)
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY as string)
 
-const Pay = () => {
-    const [value, setValue] = useState(1);
-    const searchParams = useSearchParams();
-    
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const newValue = parseInt(e.target.value);
-        setValue(newValue);
+const StripePay = () => {
+  const [value, setValue] = useState(1)
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const searchParams = useSearchParams()
+
+  // Check for success or canceled status from URL params
+  const isSuccess = searchParams.get("success") === "true"
+  const isCanceled = searchParams.get("canceled") === "true"
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = Number.parseInt(e.target.value)
+    setValue(newValue)
+  }
+
+  const handleBuy = async () => {
+    try {
+      setIsLoading(true)
+      setError(null)
+
+      const stripe = await stripePromise
+      if (!stripe) {
+        throw new Error("Stripe failed to initialize")
+      }
+
+      const res = await axios.post("/api/stripe", { value })
+      const session = res.data
+
+      const result = await stripe.redirectToCheckout({
+        sessionId: session.id,
+      })
+
+      if (result.error) {
+        throw result.error
+      }
+    } catch (error) {
+      console.error("error", error)
+      setError("Payment failed. Please try again.")
+    } finally {
+      setIsLoading(false)
     }
+  }
 
-    const handleBuy = async () => {
-        try {
-            const stripe = await stripePromise;
-            const res = await axios.post("/api/stripe", { value })
-            console.log("res----------", res)
-            console.log("data----------", res.data)
-            const session = res.data
-            if (stripe) {
-                const result = await stripe.redirectToCheckout({
-                    sessionId: session.id
-                })
-                if (result.error) {
-                    console.log("error", result.error)
-                }
-            }
-        } catch (error) {
-            console.log("error", error)
-        }
-    }
+  return (
+    <div className="flex flex-col items-center p-4">
+      <p className="text-orange-500 text-sm md:text-lg uppercase tracking-wider mt-2 md:mt-5">- UPLOAD DOCUMENT -</p>
+      <h2 className="text-2xl md:text-3xl font-bold mt-2 md:mt-5 mb-6">Purchase Credits</h2>
 
-    return (
-        <div className="flex flex-col justify-center items-center">
-            <p className="mt-0 sm:mt-[10px] md:mt-[20px] p-2 text-[#FF8A00] text-[12px] sm:text-[14px] md:text-[18px] tracking-wider text-center uppercase">- UPLOAD DOCUMENT -</p>
-            <h2 className="mt-0 sm:mt-[10px] md:mt-[20px] mb-7 font-bold leading-none text-center text-[28px] sm:text-[36px] md:text-[36px]">Purchase Credits</h2>
-            <div className="w-[85%] xl:w-[80%] px-[10px] sm:px-[12px] xl:px-[20px] bg-[#0D6EFD] bg-opacity-15  rounded-[14px] mb-[20px]">
-                <div className="flex justify-between mt-[20px]">
-                    <Link href={"/freeupload"} >
-                        <Image
-                            src="/preview.webp"
-                            alt="preview"
-                            width={26}
-                            height={26}
-                        />
-                    </Link>
-                    <Link href={"/"}>
-                        <Image
-                            src="/cancel.webp"
-                            alt="cancel"
-                            width={25}
-                            height={25}
-                        />
-                    </Link>
-                </div>
-                <div className="mx-[20px] md:mx-[60px] xl:mx-[100px] mb-[40px] flex flex-col items-center mt-[20px] text-[32px] text-black font-semibold">
-                    <div className="text-[28px] sm:text-[36px] md:text-[42px]">Make Payment</div>
-                    <div className="flex xl:flex-row flex-col w-full justify-between gap-4 h-fit mt-[50px]">
-                        <div className="xl:w-1/2 w-full">
-                            <div className="w-[90%]">
-                                <div className="text-[16px] sm:text-[18px] md:text-[20px] font-bold ">Credit Number</div>
-                                <input type="number" className="w-full h-[44px] sm:h-[48px] md:h-[56px] border border-black rounded-[8px] mt-[15px] pl-[10px]" value={value} onChange={handleChange} min={1} step={1}></input>
-                            </div>
-                        </div>
-                        <div className="xl:w-1/2 w-full">
-                            <div className="text-[16px] sm:text-[18px] md:text-[20px] font-bold text-black ">Review payment Amount </div>
-                            <div className="flex justify-around mt-[20px]">
-                                <div className="text-[16px] md:text-[20px] text-black text-opacity-60">For <span className="text-black text-[18px] md:text-[18px] font-bold">{value}</span> credits</div>
-                                <div className="text-[20px] md:text-[24px] text-black text-opacity-60">$0.2</div>
-                            </div>
-                            <div className="w-[90%] h-[3px] bg-black float-end"></div>
-
-                            <div className="flex justify-around mt-[5px]">
-                                <div className="text-[24px] md:text-[28px] text-black font-bold">Total</div>
-                                <div className="text-[24px] md:text-[28px] text-black font-bold">${value / 5} USD</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="flex justify-center mt-[90px]">
-                        <button className="w-[280px] sm:w-[320px] md:w-[360px] h-[44px] sm:h-[70px] md:h-[78px] bg-[#665cff] rounded-2xl" onClick={handleBuy}>
-                            <div className="flex justify-center gap-2 items-center mr-[5px]">
-                                <Image
-                                    src="/stripe.webp"
-                                    alt="card"
-                                    width={64}
-                                    height={64}
-                                    className="w-[60px] md:w-[64px] h-[60px] md:h-[64px] rounded-full"
-                                />
-                                <span className="text-[20px] sm:text-[24px] md:text-[28px] text-white text-bold">Pay with Stripe</span>
-                            </div>
-                        </button>
-                    </div>
-                </div>
-            </div>
+      {isSuccess && (
+        <div className="w-full max-w-3xl bg-green-100 text-green-800 rounded-lg p-4 mb-6">
+          Payment successful! Your credits have been added to your account.
         </div>
-    )
+      )}
+
+      {isCanceled && (
+        <div className="w-full max-w-3xl bg-yellow-100 text-yellow-800 rounded-lg p-4 mb-6">
+          Payment canceled. No charges were made.
+        </div>
+      )}
+
+      {error && <div className="w-full max-w-3xl bg-red-100 text-red-800 rounded-lg p-4 mb-6">{error}</div>}
+
+      <div className="w-full max-w-3xl bg-blue-100 rounded-lg p-6">
+        <div className="text-center">
+          <h3 className="text-2xl md:text-3xl font-semibold mb-8">Make Payment with Stripe</h3>
+
+          <div className="mb-6">
+            <label htmlFor="amount" className="block text-lg font-bold mb-2">
+              Amount
+            </label>
+            <input
+              type="number"
+              id="amount"
+              className="w-full p-2 border border-gray-300 rounded"
+              value={value}
+              onChange={handleChange}
+              min={1}
+              step={1}
+            />
+          </div>
+
+          <div className="flex flex-col items-center mb-6">
+            <button
+              className="bg-indigo-600 text-white rounded-xl px-6 py-3 flex items-center justify-center space-x-2 w-full max-w-md mx-auto disabled:bg-indigo-400 mb-4"
+              onClick={handleBuy}
+              disabled={isLoading}
+            >
+              <span className="text-xl font-bold">{isLoading ? "Processing..." : "Pay with Stripe"}</span>
+            </button>
+
+            <Link href="/paypal" className="text-indigo-600 hover:text-indigo-800">
+              Switch to PayPal payment
+            </Link>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
 }
 
-export default Pay
+export default StripePay
+
