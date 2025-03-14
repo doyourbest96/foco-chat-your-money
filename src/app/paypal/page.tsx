@@ -128,9 +128,14 @@ const PayPalPay = () => {
               )}
             </div>
 
-            <Link href="/stripe" className="text-indigo-600 hover:text-indigo-800">
-              Switch to Stripe payment
-            </Link>
+            <div className="flex space-x-4 mt-2">
+              <Link href="/stripe" className="text-indigo-600 hover:text-indigo-800">
+                Switch to Stripe
+              </Link>
+              <Link href="/mtn" className="text-indigo-600 hover:text-indigo-800">
+                Switch to MTN
+              </Link>
+            </div>
           </div>
         </div>
       </div>

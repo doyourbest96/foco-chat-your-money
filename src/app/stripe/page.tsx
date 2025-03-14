@@ -98,11 +98,15 @@ const StripePay = () => {
             >
               <span className="text-xl font-bold">{isLoading ? "Processing..." : "Pay with Stripe"}</span>
             </button>
-
-            <Link href="/paypal" className="text-indigo-600 hover:text-indigo-800">
-              Switch to PayPal payment
-            </Link>
           </div>
+          <div className="flex space-x-4 mt-2">
+              <Link href="/mtn" className="text-indigo-600 hover:text-indigo-800">
+                Switch to MTN
+              </Link>
+              <Link href="/paypal" className="text-indigo-600 hover:text-indigo-800">
+                Switch to PayPal
+              </Link>
+            </div>
         </div>
       </div>
     </div>
