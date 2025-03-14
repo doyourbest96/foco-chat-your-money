@@ -9,7 +9,7 @@ interface Message {
 
 // Add Button interface
 interface PaymentButton {
-  type: 'stripe' | 'mtn' | 'paypal';
+  type: 'Stripe' | 'MTN' | 'PayPal' | 'MoneyGram';
   label: string;
   url: string;
 }
@@ -55,7 +55,8 @@ Be patient, engaging, and make the process easy for beginners!
       When user selects a payment method, respond with one of these markers:
       [STRIPE_BUTTON] for Stripe transfers
       [MTN_BUTTON] for MTN transfers
-      [PAYPAL_BUTTON] for PayPal transfers`;
+      [PAYPAL_BUTTON] for PayPal transfers
+      [MONEYGRAM_BUTTON] for MoneyGram transfers`;
 
     const completion = await openai.chat.completions.create({
         model: "gpt-4",
@@ -74,21 +75,27 @@ Be patient, engaging, and make the process easy for beginners!
     
     if (responseText.includes('[STRIPE_BUTTON]')) {
       buttons.push({
-        type: 'stripe',
+        type: 'Stripe',
         label: 'Proceed with Stripe',
-        url: 'https://stripe.com'
+        url: 'https://foco-chat-your-money.vercel.app/stripe'
       });
     } else if (responseText.includes('[MTN_BUTTON]')) {
       buttons.push({
-        type: 'mtn',
+        type: 'MTN',
         label: 'Proceed with MTN',
-        url: 'https://mtn.com'
+        url: 'https://foco-chat-your-money.vercel.app/mtn'
       });
     } else if (responseText.includes('[PAYPAL_BUTTON]')) {
       buttons.push({
-        type: 'paypal',
+        type: 'PayPal',
         label: 'Proceed with PayPal',
-        url: 'https://paypal.com'
+        url: 'https://foco-chat-your-money.vercel.app/paypal'
+      });
+    } else if (responseText.includes('[MONEYGRAM_BUTTON]')) {
+      buttons.push({
+        type: 'MoneyGram',
+        label: 'Proceed with MoneyGram',
+        url: 'https://foco-chat-your-money.vercel.app/Moneygramtransfer'
       });
     }
 
