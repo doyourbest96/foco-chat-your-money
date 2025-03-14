@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Send, Bot, User, History } from 'lucide-react';
+import { Send, Bot, User } from 'lucide-react';
 import { Navbar } from '@/components/ui/navbar';
 import ReactMarkdown from 'react-markdown';
 
@@ -16,7 +16,7 @@ interface Message extends BaseMessage {
 }
 
 interface PaymentButton {
-  type: 'stripe' | 'mtn' | 'paypal';
+  type: 'Stripe' | 'MTN' | 'PayPal'| 'MoneyGram';
   label: string;
   url: string;
 }
@@ -69,25 +69,12 @@ export default function AIChat() {
       }
     ]);
     const [input, setInput] = useState('');
-    const [showHistory, setShowHistory] = useState(false);
+
   
     useEffect(() => {
       setMounted(true);
-      fetchChatHistory();
     }, []);
   
-    const fetchChatHistory = async () => {
-      try {
-        const response = await fetch('/api/chat/history');
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        setMessages(data.messages);
-      } catch (error) {
-        console.error('Failed to fetch chat history:', error);
-      }
-    };  
   const [, setPaymentButtons] = useState<PaymentButton[]>([]);
 
   // Update handleSend to process buttons
@@ -157,9 +144,10 @@ export default function AIChat() {
           className="justify-start gap-2 hover:bg-primary hover:text-primary-foreground"
           onClick={() => window.open(button.url, '_blank')}
         >
-          {button.type === 'stripe' && <span className="text-blue-500">💳</span>}
-          {button.type === 'mtn' && <span className="text-yellow-500">📱</span>}
-          {button.type === 'paypal' && <span className="text-blue-300">🔵</span>}
+          {button.type === 'Stripe' && <span className="text-blue-500">💳</span>}
+          {button.type === 'MTN' && <span className="text-yellow-500">📱</span>}
+          {button.type === 'PayPal' && <span className="text-blue-300">🔵</span>}
+          {button.type === 'MoneyGram' && <span className="text-blue-300">🌍</span>}
           {button.label}
         </Button>
       ))}
@@ -171,7 +159,7 @@ export default function AIChat() {
     <div className="min-h-screen bg-background">
       <Navbar />
       <div className="container mx-auto px-4 py-8 pt-20 flex flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4">
-        <Card className="w-full md:w-2/3">
+        <Card className="w-full md:w-">
         <div className="p-6 border-b">
             <h1 className="text-2xl font-bold">AI Assistant</h1>
             <p className="text-sm text-muted-foreground">Get help with your transfers and account management</p>
@@ -225,29 +213,7 @@ export default function AIChat() {
             </form>
           </div>
         </Card>
-
-        <Card className={`w-full md:w-1/3 bg-white-gray text-black rounded-lg border shadow-sm ${showHistory ? 'block' : 'hidden'} md:block`}>
-          <div className="p-6 border-b">
-            <h2 className="text-xl font-bold">Chat History</h2>
-          </div>
-          <ScrollArea className="h-[500px] p-4">
-            <div className="space-y-4">
-              {messages.map((message) => (
-                <Button key={message.id} className="w-full text-left p-2 border-b bg-white-gray text-black">
-                  <p className="text-sm">{message.content.substring(0, 40)}...</p>
-                  <p className="text-xs opacity-60">{message.timestamp.toLocaleDateString()} {message.timestamp.toLocaleTimeString()}</p>
-                </Button>
-              ))}
-            </div>
-          </ScrollArea>
-        </Card>
       </div>
-      <Button
-        className="fixed bottom-4 left-4 md:hidden"
-        onClick={() => setShowHistory(!showHistory)}
-      >
-        <History className="h-6 w-6" />
-      </Button>
     </div>
   );
 }
