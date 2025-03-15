@@ -58,8 +58,8 @@ export async function POST(req: NextRequest) {
           },
         ],
         application_context: {
-          return_url: `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/payment?success=true`,
-          cancel_url: `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/payment?canceled=true`,
+          return_url: `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}/paypal`,
+          cancel_url: `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}/paypal`,
         },
       }),
     })

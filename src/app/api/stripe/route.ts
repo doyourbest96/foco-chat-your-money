@@ -33,8 +33,8 @@ export async function POST(req: NextRequest) {
         },
       ],
       mode: "payment",
-      success_url: `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/payment?success=true`,
-      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/payment?canceled=true`,
+      success_url: `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}/stripe`,
+      cancel_url: `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}/stripe`,
       metadata: {
         quantity: value,
         username,
