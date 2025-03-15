@@ -1,6 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/auth-context';
 import { Button } from "@/components/ui/button";
@@ -281,10 +282,11 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
             {testimonials.map((testimonial, index) => (
               <Card key={index} className="p-8 hover:shadow-lg transition-all">
-                <div className="flex items-start gap-4">
-                  <img
+                  <Image
                     src={testimonial.image}
                     alt={testimonial.author}
+                    width={48}
+                    height={48}
                     className="w-12 h-12 rounded-full object-cover"
                   />
                   <div>
@@ -294,7 +296,6 @@ export default function Home() {
                       {testimonial.role}
                     </p>
                   </div>
-                </div>
               </Card>
             ))}
           </div>
