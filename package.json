@@ -9,7 +9,6 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@clerk/nextjs": "^6.12.5",
     "@hookform/resolvers": "^3.9.0",
     "@next/swc-wasm-nodejs": "13.5.1",
     "@paypal/react-paypal-js": "^8.8.2",
@@ -116,8 +115,8 @@
     "@types/jsonwebtoken": "^9.0.9",
     "@types/mongodb": "^4.0.6",
     "@types/node": "^22.13.10",
-    "@types/validator": "^13.12.2",
     "@types/paypal-rest-sdk": "^1.7.9",
+    "@types/validator": "^13.12.2",
     "prisma": "^6.4.1",
     "typescript": "^5.8.2"
   }
