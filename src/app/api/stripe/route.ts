@@ -1,6 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
 import Stripe from "stripe"
-import { currentUser } from "@clerk/nextjs/server"
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
   apiVersion: "2025-02-24.acacia",
@@ -8,13 +7,8 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
 
 export async function POST(req: NextRequest) {
   try {
-    // Fetch current user information
-    const userInfo = await currentUser()
-    if (!userInfo) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
 
-    const username = userInfo.username || "Anonymous"
+    const username = "Anonymous"
 
     // Parse request body
     const body = await req.json()

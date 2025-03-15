@@ -1,15 +1,9 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { currentUser } from "@clerk/nextjs/server"
 
 export async function POST(req: NextRequest) {
   try {
-    // Fetch current user information
-    const userInfo = await currentUser()
-    if (!userInfo) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
-
-    const username = userInfo.username || "Anonymous"
+    
+    const username = "Anonymous"
 
     // Parse request body
     const body = await req.json()
