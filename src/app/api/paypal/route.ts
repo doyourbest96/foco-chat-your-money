@@ -3,8 +3,6 @@ import { type NextRequest, NextResponse } from "next/server"
 export async function POST(req: NextRequest) {
   try {
     
-    const username = "Anonymous"
-
     // Parse request body
     const body = await req.json()
     const { value } = body
